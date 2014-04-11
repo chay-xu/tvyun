@@ -1,0 +1,238 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>阿里TV助手</title>
+  <!--<script src="http://10.125.14.135:8080/target/target-script-min.js#tv"></script>-->
+<style>
+html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden;}
+body{
+  background-color: #0071ac;
+}
+section{width:100%;height:100%;-webkit-box-flex:1}
+
+.e-box{width:100%;height:100%;}
+/*gallery*/
+.gallery{
+	height: 100%;
+	position: absolute;
+	display:-webkit-box;
+	-webkit-box-align: center;
+	-webkit-box-pack: center;
+	opacity:0;
+	-webkit-transition: all 0.5s ease-in;
+}
+.e-box .current{opacity:1}
+
+.gallery .item-l{
+	-webkit-box-flex: 1;
+	width:1216px;
+	height:1080px;
+}
+.gallery .item-r{
+	-webkit-box-flex: 1;
+	width:628px;
+	height:501px;
+	margin-top: 3em;
+	margin-right: 2em;
+}
+
+.gallery .t1{background:url(images/p1.png) 50% 100% no-repeat; }
+.gallery .t2{background:url(images/p2.png) 50% 100% no-repeat; }
+.gallery .b1{background:url(images/desc1.png) no-repeat; }
+.gallery .b2{background:url(images/desc2.png) no-repeat; }
+
+/*arrow*/
+.e-arrow{
+	position: absolute;
+	display: -webkit-box;
+	-webkit-box-orient: horizontal;
+	/*-webkit-box-pack: center;*/
+	-webkit-box-align: center;
+	z-index: 9999;
+}
+.left{
+	display: -webkit-box;
+	-webkit-box-flex: 1;
+	-webkit-box-pack: start;
+}
+.right{
+	display: -webkit-box;
+	-webkit-box-flex: 1;
+	-webkit-box-pack: end;
+}
+.left a, .right a{
+	display: block;
+	width: 80px;
+	height: 90px;
+	opacity: 0;
+	-webkit-transition: all 0.5s ease-in;
+}
+.left a{
+	background:url(images/left.png) left center no-repeat;
+	-webkit-box-pack: start;
+	-webkit-transform: translate(80px);
+}
+.right a{
+	background:url(images/right.png) right center no-repeat;
+	-webkit-box-pack: end;
+	-webkit-transform: translate(-80px);
+}
+a.arrow-current{
+	opacity: 1;
+	-webkit-transform: translate(0);
+}
+@media screen and (max-width: 1280px){
+  body{
+    zoom: 0.6666667;
+  }
+}
+@media tv and (max-width: 1280px){
+  body{
+    zoom: 0.6666667;
+  }
+}
+</style>
+</head>
+<body>
+	<section class="e-arrow">
+  		<div class="left"><a href="javascript:;"></a></div>
+  		<div class="right"><a class="arrow-current" href="javascript:;"></a></div>
+  	</section>
+	<section class="e-box">
+		<div class="gallery current">
+			<div class="item-l t1"></div>
+			<div class="item-r b1"></div>
+		</div>
+		<div class="gallery">
+			<div class="item-l t2"></div>
+			<div class="item-r b2"></div>
+		</div>
+	</section>
+  
+
+<!-- <script src="js/seay.js"></script> -->
+<!-- <script src="../src/tvyun.att.js"></script> -->
+<script src="../src/tvyun.js"></script>
+<script>
+
+
+window.onload = function(){
+
+	var player = (function(){
+
+		var list = T( ".gallery" ),
+			len = list.length - 1,
+			duration = 5000,
+			index = 0,
+			timer;
+
+		return {
+			_show: function( i ){
+				if(i < 0){
+					i = len;
+				}else if( i > len){
+					i = 0;
+				}
+				if(i == index){
+					return;
+				}
+
+				index = i;
+
+				if( i == len ){
+					T( ".left a" ).addClass( "arrow-current" );
+					// T( ".left a" )[0].addEventListener("b");
+					T( ".right a" ).removeClass( "arrow-current" );
+				}else if( i == 0 ){
+					T( ".right a" ).addClass( "arrow-current" );
+					T( ".left a" ).removeClass( "arrow-current" );
+				}
+
+				T( ".e-box .current" ).removeClass( "current" );
+				T( list[ i ] ).addClass( "current" );
+			},
+			next: function(){
+				this._show( index - 1 );
+			},
+			prev: function(){
+				this._show( index + 1 );
+			},
+			stop: function(){
+				clearTimeout( timer );
+			},
+			play: function(){
+				var self = this;
+				timer = setTimeout(function(){
+					self.next();
+					self.play();
+				}, duration);
+			}
+		}
+	})();
+
+	player.play();
+
+	T( document ).on("keydown", function( e ){ 
+		
+		switch( e.keyCode ){
+  			case 37:
+  				e.preventDefault();
+			 	player.stop();
+  				player.next();
+  				player.play();
+  				break;
+  			case 39:
+  				e.preventDefault();
+			 	player.stop();
+  				player.prev();
+  				player.play();
+
+  		}
+	});
+
+	var unfn = function(){
+		console.log( T.cache );
+		T( document ).un("click", unfn);
+	};
+
+	T( document ).on("click", unfn);
+	T( document ).fire("click");
+
+
+	
+
+	// T( Node ).on("click",function(){alert(1)})
+
+	// E( document ).on("click", function(){
+	// 	console.log(E.cache);
+	// 	E( document ).un("click")
+	// })
+	
+	
+
+	// document.addEventListener("keydown", function( e ){
+	// 	// left: 37, up: 38,
+ //  //     right: 39, down: 40,
+
+ //  		switch( e.keyCode ){
+ //  			case 37:
+ //  				e.preventDefault();
+	// 		 	player.stop();
+ //  				player.next();
+ //  				player.play();
+ //  				break;
+ //  			case 39:
+ //  				e.preventDefault();
+	// 		 	player.stop();
+ //  				player.prev();
+ //  				player.play();
+
+ //  		}
+	// })
+
+
+}
+
+</script>
+</body>
